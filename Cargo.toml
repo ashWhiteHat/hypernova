@@ -5,3 +5,6 @@ edition = "2021"
 
 [dependencies]
 zkstd = { version = "0.0.21", default-features = false }
+
+[dev-dependencies]
+jub-jub = { version = "0.0.18", default-features = false }
