@@ -11,7 +11,7 @@ pub struct Ccs<F: PrimeField, const t: usize, const q: usize> {
     // matrices
     pub(crate) matrices: [SparseMatrix<F>; t],
     // multisets
-    pub(crate) multisets: [SparseMatrix<F>; q],
+    pub(crate) multisets: [Vec<usize>; q],
     // constants
     pub(crate) constants: [F; q],
 
@@ -20,4 +20,10 @@ pub struct Ccs<F: PrimeField, const t: usize, const q: usize> {
 
     // 3. Witness
     pub(crate) w: DenseVectors<F>,
+}
+
+impl<F: PrimeField, const t: usize, const q: usize> Ccs<F, t, q> {
+    pub(crate) fn is_sat(&self) -> bool {
+        (0..q).all(|i| true)
+    }
 }

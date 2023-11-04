@@ -1,3 +1,4 @@
+use crate::ccs::Ccs;
 use crate::matrix::{DenseVectors, Element, SparseMatrix};
 use crate::wire::Wire;
 
@@ -6,8 +7,10 @@ use zkstd::common::PrimeField;
 #[derive(Clone, Debug, Default)]
 pub struct R1cs<F: PrimeField> {
     // 1. Structure S
-    // matrix length
+    // matrix column size
     pub(crate) m: usize,
+    // matrix row size
+    pub(crate) n: usize,
     // instance length
     pub(crate) l: usize,
     // a, b and c matrices
@@ -26,6 +29,7 @@ impl<F: PrimeField> R1cs<F> {
     pub fn is_sat(&self) -> bool {
         let R1cs {
             m,
+            n: _,
             l: _,
             a,
             b,
@@ -51,6 +55,31 @@ impl<F: PrimeField> R1cs<F> {
             };
             sum + coeff * value
         })
+    }
+
+    fn to_ccs(&self) -> Ccs<F, 3, 2> {
+        let R1cs {
+            m,
+            n: _,
+            l: _,
+            a,
+            b,
+            c,
+            x,
+            w,
+        } = self.clone();
+        let matrices = [a, b, c];
+        let multisets = [vec![0, 1], vec![2]];
+        let constants = [F::one(), -F::one()];
+
+        Ccs {
+            m,
+            matrices,
+            multisets,
+            constants,
+            x,
+            w,
+        }
     }
 }
 
@@ -113,6 +142,7 @@ mod tests {
 
     fn example_r1cs<F: PrimeField>(input: u64) -> R1cs<F> {
         let m = 4;
+        let n = 6;
         let l = 1;
         let a = dense_to_sparse(
             vec![
@@ -144,6 +174,7 @@ mod tests {
         let (x, w) = example_z_witness(input, l);
         R1cs {
             m,
+            n,
             l,
             a,
             b,
