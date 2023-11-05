@@ -1,5 +1,5 @@
 use crate::ccs::Ccs;
-use crate::matrix::{DenseVectors, Element, SparseMatrix};
+use crate::matrix::{DenseVectors, Entry, SparseMatrix};
 use crate::wire::Wire;
 
 use zkstd::common::PrimeField;
@@ -45,8 +45,8 @@ impl<F: PrimeField> R1cs<F> {
         })
     }
 
-    fn dot_product(&self, elements: &Vec<Element<F>>) -> F {
-        elements.iter().fold(F::zero(), |sum, element| {
+    fn dot_product(&self, entry: &Vec<Entry<F>>) -> F {
+        entry.iter().fold(F::zero(), |sum, element| {
             let (wire, value) = element.get();
             let coeff = match wire {
                 Wire::Witness(index) => self.w[index],
@@ -105,13 +105,13 @@ mod tests {
                     .enumerate()
                     .map(|(index, element)| {
                         if index == 0 {
-                            Element(Wire::One, F::from(*element))
+                            Entry(Wire::One, F::from(*element))
                         } else if index <= l {
                             let index = index - 1;
-                            Element(Wire::instance(index), F::from(*element))
+                            Entry(Wire::instance(index), F::from(*element))
                         } else {
                             let index = index - 1 - l;
-                            Element(Wire::witness(index), F::from(*element))
+                            Entry(Wire::witness(index), F::from(*element))
                         }
                     })
                     .filter(|element| element.1 != F::zero())

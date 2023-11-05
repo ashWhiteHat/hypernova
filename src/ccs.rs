@@ -1,4 +1,4 @@
-use crate::matrix::{DenseVectors, Element, SparseMatrix};
+use crate::matrix::{DenseVectors, Entry, SparseMatrix};
 
 use zkstd::common::PrimeField;
 
