@@ -11,6 +11,10 @@ impl<F: PrimeField> DenseVectors<F> {
             index: 0,
         }
     }
+
+    pub(crate) fn identity(m: usize) -> Self {
+        Self(vec![F::one(); m])
+    }
 }
 
 pub(crate) struct DenseVectorsIterator<F: PrimeField> {

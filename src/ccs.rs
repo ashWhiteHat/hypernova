@@ -24,6 +24,44 @@ pub struct Ccs<F: PrimeField, const t: usize, const q: usize> {
 
 impl<F: PrimeField, const t: usize, const q: usize> Ccs<F, t, q> {
     pub(crate) fn is_sat(&self) -> bool {
-        (0..q).all(|i| true)
+        let vectors: Vec<DenseVectors<F>> = (0..q)
+            .map(|i| {
+                // constant scalar of matrix
+                let c = self.constants[i];
+                // matrix indexes
+                let s = self.multisets[i].clone();
+                let j_vectors: Vec<DenseVectors<F>> = s
+                    .iter()
+                    .map(|j| {
+                        let matrix = self.matrices[i].clone();
+                        matrix.prod(self.m, &self.x, &self.w)
+                    })
+                    .collect();
+                let mut acc = DenseVectors::identity(self.m);
+                for vector in j_vectors {
+                    acc = acc * vector
+                }
+                acc * c
+            })
+            .collect();
+        let mut identity = DenseVectors(vec![F::zero(); self.m]);
+        for vector in vectors {
+            identity = identity + vector
+        }
+        identity.iter().all(|vector| vector == F::zero())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::test::example_r1cs;
+    use jub_jub::Fr as Scalar;
+
+    #[test]
+    fn ccs_test() {
+        for i in 1..10 {
+            let r1cs = example_r1cs::<Scalar>(i);
+            assert!(r1cs.to_ccs().is_sat())
+        }
     }
 }
