@@ -12,6 +12,7 @@ use zkstd::common::PrimeField;
 pub(crate) struct SparseMatrix<F: PrimeField>(pub(crate) Vec<Vec<Entry<F>>>);
 
 impl<F: PrimeField> SparseMatrix<F> {
+    // matrix-vector multiplication
     pub(crate) fn prod(
         &self,
         m: usize,

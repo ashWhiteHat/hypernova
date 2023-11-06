@@ -1,7 +1,6 @@
 use crate::wire::Wire;
 
-use std::ops::{Index, IndexMut};
-use zkstd::common::{Add, Mul, PrimeField, Sub};
+use zkstd::common::PrimeField;
 
 #[derive(Clone, Debug)]
 pub(crate) struct Entry<F: PrimeField>(pub(crate) Wire, pub(crate) F);

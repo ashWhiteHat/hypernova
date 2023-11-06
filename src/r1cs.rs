@@ -26,6 +26,7 @@ pub struct R1cs<F: PrimeField> {
 }
 
 impl<F: PrimeField> R1cs<F> {
+    ///  check (A · Z) ◦ (B · Z) = C · Z
     pub fn is_sat(&self) -> bool {
         let R1cs {
             m,
@@ -34,27 +35,21 @@ impl<F: PrimeField> R1cs<F> {
             a,
             b,
             c,
-            x: _,
-            w: _,
+            x,
+            w,
         } = self.clone();
-        (0..m).all(|i| {
-            let a_prod = self.dot_product(&a[i]);
-            let b_prod = self.dot_product(&b[i]);
-            let c_prod = self.dot_product(&c[i]);
-            a_prod * b_prod == c_prod
-        })
-    }
+        // A · Z
+        let az = a.prod(m, &x, &w);
+        // B · Z
+        let bz = b.prod(m, &x, &w);
+        // C · Z
+        let cz = c.prod(m, &x, &w);
+        // (A · Z) ◦ (B · Z)
+        let azbz = az * bz;
 
-    fn dot_product(&self, entry: &Vec<Entry<F>>) -> F {
-        entry.iter().fold(F::zero(), |sum, element| {
-            let (wire, value) = element.get();
-            let coeff = match wire {
-                Wire::Witness(index) => self.w[index],
-                Wire::Instance(index) => self.x[index],
-                Wire::One => F::one(),
-            };
-            sum + coeff * value
-        })
+        azbz.iter()
+            .zip(cz.iter())
+            .all(|(left, right)| left == right)
     }
 
     fn to_ccs(&self) -> Ccs<F, 3, 2> {
